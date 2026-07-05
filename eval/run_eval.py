@@ -89,20 +89,27 @@ def evaluate_problem(problem: dict, rag_enabled: bool) -> dict:
             )
 
     # --- LLM-as-judge --------------------------------------------------------
-    verdict = judge_hallucination(problem["prompt"], spec, usage=judge_usage)
-    record["judge_hallucination"] = verdict.model_dump()
-    # A run counts as hallucinated if the judge flags invented content OR the
-    # validator needed more than 1 retry (spec §6.2 metric 3).
-    record["hallucinated"] = bool(
-        verdict.hallucinated or record["validation_retries"] > 1
-    )
+    # Judging is isolated: a failure here (e.g. a quota 429 mid-run) must not
+    # discard the successful pipeline result. The record is still saved with
+    # judge fields marked incomplete so the run stays resumable and the report
+    # simply omits it from judge-based aggregates.
+    try:
+        verdict = judge_hallucination(problem["prompt"], spec, usage=judge_usage)
+        record["judge_hallucination"] = verdict.model_dump()
+        # Hallucinated if the judge flags invented content OR the validator
+        # needed more than 1 retry (spec §6.2 metric 3).
+        record["hallucinated"] = bool(
+            verdict.hallucinated or record["validation_retries"] > 1
+        )
 
-    score = judge_explanation(state["explained"], usage=judge_usage)
-    record["judge_explanation"] = score.model_dump()
-    record["explanation_score"] = round(
-        (score.correctness + score.clarity + score.completeness) / 3, 2
-    )
-    record["judge_tokens"] = judge_usage.input_tokens + judge_usage.output_tokens
+        score = judge_explanation(state["explained"], usage=judge_usage)
+        record["judge_explanation"] = score.model_dump()
+        record["explanation_score"] = round(
+            (score.correctness + score.clarity + score.completeness) / 3, 2
+        )
+        record["judge_tokens"] = judge_usage.input_tokens + judge_usage.output_tokens
+    except Exception as exc:  # noqa: BLE001 - judging is best-effort
+        record["judge_error"] = f"{type(exc).__name__}: {exc}"
     return record
 
 
@@ -323,6 +330,13 @@ def main(argv: list[str] | None = None) -> None:
                 print("interrupted — writing partial results.")
                 flush()
                 raise
+            except Exception as exc:  # noqa: BLE001 - never let one problem kill the run
+                record = {
+                    "id": problem["id"], "family": problem["family"],
+                    "ambiguous": problem["ambiguous"], "rag_enabled": rag_enabled,
+                    "pipeline_status": "crashed",
+                    "error": f"{type(exc).__name__}: {exc}",
+                }
             records.append(record)
             flush()  # incremental save after every problem
             print(record.get("pipeline_status"),
