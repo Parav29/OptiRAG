@@ -29,3 +29,9 @@ RRF_K = int(os.getenv("RRF_K", "60"))
 
 # Pipeline
 MAX_MODELING_ATTEMPTS = int(os.getenv("MAX_MODELING_ATTEMPTS", "3"))
+
+# Rate limiting — keep under the Gemini free-tier limits so calls are never
+# billed (the free tier returns HTTP 429 rather than charging when exceeded).
+GEMINI_CALLS_PER_MIN = float(os.getenv("GEMINI_CALLS_PER_MIN", "5"))
+GEMINI_MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", "5"))
+GEMINI_MAX_BACKOFF_S = float(os.getenv("GEMINI_MAX_BACKOFF_S", "90"))

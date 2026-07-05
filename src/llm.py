@@ -13,6 +13,11 @@ softer guarantee on the modeling spec.
 """
 
 import json
+import logging
+import random
+import re
+import threading
+import time
 from dataclasses import dataclass
 from typing import Any, Type, TypeVar
 
@@ -22,9 +27,69 @@ from pydantic import BaseModel
 
 from src import config
 
+logger = logging.getLogger(__name__)
+
 T = TypeVar("T", bound=BaseModel)
 
 _client: genai.Client | None = None
+
+# --- client-side throttle so we stay under the free-tier rate limit ---------
+_rate_lock = threading.Lock()
+_last_call = [0.0]
+
+
+def _throttle() -> None:
+    """Block until at least (60 / GEMINI_CALLS_PER_MIN) seconds have elapsed
+    since the previous call, so bursts never exceed the configured rate."""
+    if config.GEMINI_CALLS_PER_MIN <= 0:
+        return
+    min_interval = 60.0 / config.GEMINI_CALLS_PER_MIN
+    with _rate_lock:
+        wait = _last_call[0] + min_interval - time.monotonic()
+        if wait > 0:
+            time.sleep(wait)
+        _last_call[0] = time.monotonic()
+
+
+def _is_rate_limit(exc: Exception) -> bool:
+    text = str(exc).upper()
+    code = getattr(exc, "code", None)
+    return code == 429 or "RESOURCE_EXHAUSTED" in text or "429" in text or (
+        "QUOTA" in text and "EXCEED" in text
+    )
+
+
+def _retry_delay_hint(exc: Exception) -> float | None:
+    """Honour a server-suggested retry delay if the error carries one."""
+    match = re.search(r"retry.?delay['\"]?\s*[:=]\s*['\"]?(\d+(?:\.\d+)?)",
+                      str(exc), re.IGNORECASE)
+    return float(match.group(1)) if match else None
+
+
+def _generate(model: str, contents: str, gen_config: "types.GenerateContentConfig"):
+    """One Gemini call with throttling and exponential backoff on 429s."""
+    client = get_client()
+    last_exc: Exception | None = None
+    for attempt in range(config.GEMINI_MAX_RETRIES):
+        _throttle()
+        try:
+            return client.models.generate_content(
+                model=model, contents=contents, config=gen_config
+            )
+        except Exception as exc:  # noqa: BLE001 - inspect to decide retry
+            last_exc = exc
+            if not _is_rate_limit(exc) or attempt == config.GEMINI_MAX_RETRIES - 1:
+                raise
+            backoff = _retry_delay_hint(exc) or min(
+                config.GEMINI_MAX_BACKOFF_S, 2.0 * (2 ** attempt)
+            )
+            backoff += random.uniform(0, 1.0)  # jitter
+            logger.warning(
+                "Rate limited (attempt %d/%d); backing off %.1fs.",
+                attempt + 1, config.GEMINI_MAX_RETRIES, backoff,
+            )
+            time.sleep(backoff)
+    raise last_exc  # pragma: no cover
 
 
 def get_client() -> genai.Client:
@@ -71,11 +136,10 @@ def structured_call(
         "markdown, no code fences. It MUST conform to this JSON Schema:\n"
         f"{schema}"
     )
-    client = get_client()
-    response = client.models.generate_content(
+    response = _generate(
         model=model or config.GEMINI_MODEL,
         contents=user,
-        config=types.GenerateContentConfig(
+        gen_config=types.GenerateContentConfig(
             system_instruction=system_instruction,
             temperature=0.0,
             max_output_tokens=config.MAX_TOKENS,
@@ -99,11 +163,10 @@ def text_call(
     usage: Usage | None = None,
     model: str | None = None,
 ) -> str:
-    client = get_client()
-    response = client.models.generate_content(
+    response = _generate(
         model=model or config.GEMINI_MODEL,
         contents=user,
-        config=types.GenerateContentConfig(
+        gen_config=types.GenerateContentConfig(
             system_instruction=system,
             temperature=0.0,
             max_output_tokens=config.MAX_TOKENS,

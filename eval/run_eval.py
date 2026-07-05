@@ -280,27 +280,56 @@ def main(argv: list[str] | None = None) -> None:
                         choices=["on", "off"])
     parser.add_argument("--limit", type=int, default=None,
                         help="Evaluate only the first N problems (smoke runs).")
+    parser.add_argument("--fresh", action="store_true",
+                        help="Ignore any existing results.json and start over.")
     args = parser.parse_args(argv)
 
     problems = json.loads(Path(args.problems).read_text())
     if args.limit:
         problems = problems[: args.limit]
 
+    results_path = EVAL_DIR / "results.json"
+    report_path = EVAL_DIR / "report.md"
+
+    # Resume support: reuse any prior successful run for a (problem, condition)
+    # so an interrupted run (e.g. daily quota 429) continues without re-spending
+    # calls. Records that previously "crashed" are retried.
     records: list[dict] = []
+    done: dict[tuple[str, bool], dict] = {}
+    if results_path.exists() and not args.fresh:
+        for rec in json.loads(results_path.read_text()):
+            if rec.get("pipeline_status") != "crashed":
+                done[(rec["id"], rec["rag_enabled"])] = rec
+        if done:
+            print(f"Resuming: {len(done)} prior results kept "
+                  "(use --fresh to ignore them).")
+
+    def flush() -> None:
+        results_path.write_text(json.dumps(records, indent=2))
+
     for condition in args.conditions:
         rag_enabled = condition == "on"
         print(f"=== Condition: RAG {'ON' if rag_enabled else 'OFF'} ===")
         for problem in problems:
+            key = (problem["id"], rag_enabled)
+            if key in done:
+                records.append(done[key])
+                print(f"  {problem['id']} ... (cached)")
+                continue
             print(f"  {problem['id']} ...", end=" ", flush=True)
-            record = evaluate_problem(problem, rag_enabled)
+            try:
+                record = evaluate_problem(problem, rag_enabled)
+            except KeyboardInterrupt:
+                print("interrupted — writing partial results.")
+                flush()
+                raise
             records.append(record)
+            flush()  # incremental save after every problem
             print(record.get("pipeline_status"),
                   f"(solve_correct={record.get('solve_correct', 'n/a')})")
 
-    results_path = EVAL_DIR / "results.json"
-    results_path.write_text(json.dumps(records, indent=2))
+    flush()
     report = build_report(records)
-    report_path = EVAL_DIR / "report.md"
     report_path.write_text(report)
     print(f"\nWrote {results_path} and {report_path}")
 
