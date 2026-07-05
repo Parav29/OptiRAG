@@ -1,0 +1,1610 @@
+[
+  {
+    "id": "diet_01",
+    "family": "diet",
+    "prompt": "A feed mill blends corn and soybean meal into 1 kg of feed. Corn costs $0.30 per kg and is 9% protein and 2% fiber. Soybean meal costs $0.90 per kg and is 48% protein and 6% fiber. The blend must contain at least 30% protein and at most 5% fiber. Find the cheapest 1 kg blend.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "diet",
+      "objective_sense": "minimize",
+      "objective_expression": "0.30*x_corn + 0.90*x_soy",
+      "variables": [
+        {
+          "name": "x_corn",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "x_soy",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "batch",
+          "expression": "x_corn + x_soy",
+          "sense": "==",
+          "rhs": 1.0
+        },
+        {
+          "name": "protein_min",
+          "expression": "0.09*x_corn + 0.48*x_soy",
+          "sense": ">=",
+          "rhs": 0.3
+        },
+        {
+          "name": "fiber_max",
+          "expression": "0.02*x_corn + 0.06*x_soy",
+          "sense": "<=",
+          "rhs": 0.05
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 0.623076924
+  },
+  {
+    "id": "diet_02",
+    "family": "diet",
+    "prompt": "Plan the cheapest daily diet from bread, milk, and cheese. Bread costs $0.20 per serving with 65 calories and 2 g protein. Milk costs $0.45 per serving with 120 calories and 8 g protein. Cheese costs $1.10 per serving with 110 calories and 7 g protein. The diet needs at least 2000 calories and at least 55 g protein per day.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "diet",
+      "objective_sense": "minimize",
+      "objective_expression": "0.20*x_bread + 0.45*x_milk + 1.10*x_cheese",
+      "variables": [
+        {
+          "name": "x_bread",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "x_milk",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "x_cheese",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "calories",
+          "expression": "65*x_bread + 120*x_milk + 110*x_cheese",
+          "sense": ">=",
+          "rhs": 2000.0
+        },
+        {
+          "name": "protein",
+          "expression": "2*x_bread + 8*x_milk + 7*x_cheese",
+          "sense": ">=",
+          "rhs": 55.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 6.1538462
+  },
+  {
+    "id": "diet_03",
+    "family": "diet",
+    "prompt": "Build the cheapest daily meal plan from chicken, rice, beans, and spinach. Per serving: chicken costs $2.50 with 250 calories, 30 g protein, 400 mg sodium; rice costs $0.50 with 200 calories, 4 g protein, 5 mg sodium; beans cost $0.80 with 220 calories, 14 g protein, 10 mg sodium; spinach costs $1.20 with 40 calories, 5 g protein, 80 mg sodium. Require at least 2200 calories, at least 70 g protein, and at most 1500 mg sodium.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "diet",
+      "objective_sense": "minimize",
+      "objective_expression": "2.50*x_chicken + 0.50*x_rice + 0.80*x_beans + 1.20*x_spinach",
+      "variables": [
+        {
+          "name": "x_chicken",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "x_rice",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "x_beans",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "x_spinach",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "calories",
+          "expression": "250*x_chicken + 200*x_rice + 220*x_beans + 40*x_spinach",
+          "sense": ">=",
+          "rhs": 2200.0
+        },
+        {
+          "name": "protein",
+          "expression": "30*x_chicken + 4*x_rice + 14*x_beans + 5*x_spinach",
+          "sense": ">=",
+          "rhs": 70.0
+        },
+        {
+          "name": "sodium",
+          "expression": "400*x_chicken + 5*x_rice + 10*x_beans + 80*x_spinach",
+          "sense": "<=",
+          "rhs": 1500.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 6.177083290000001
+  },
+  {
+    "id": "diet_04",
+    "family": "diet",
+    "prompt": "A mill must produce exactly a 100 kg batch of animal feed from wheat, barley, and pea meal. Wheat costs $0.22 per kg with 11% protein, barley costs $0.19 per kg with 9% protein, and pea meal costs $0.35 per kg with 22% protein. The batch must average at least 14% protein, and at most 40 kg of barley may be used. Minimize the batch cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "diet",
+      "objective_sense": "minimize",
+      "objective_expression": "0.22*x_wheat + 0.19*x_barley + 0.35*x_pea",
+      "variables": [
+        {
+          "name": "x_wheat",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "x_barley",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": 40.0
+        },
+        {
+          "name": "x_pea",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "batch",
+          "expression": "x_wheat + x_barley + x_pea",
+          "sense": "==",
+          "rhs": 100.0
+        },
+        {
+          "name": "protein",
+          "expression": "0.11*x_wheat + 0.09*x_barley + 0.22*x_pea",
+          "sense": ">=",
+          "rhs": 14.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 25.290909149999997
+  },
+  {
+    "id": "diet_05",
+    "family": "diet",
+    "prompt": "Choose a cheapest breakfast from orange juice, cereal, and granola bars. Juice costs $0.60 per glass with 120 mg vitamin C and 110 calories, at most 3 glasses. Cereal costs $0.35 per bowl with 40 mg vitamin C and 150 calories, at most 4 bowls. A granola bar costs $0.50 with 30 mg vitamin C and 200 calories, at most 5 bars. Get at least 90 mg vitamin C and at least 500 calories.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "diet",
+      "objective_sense": "minimize",
+      "objective_expression": "0.60*x_juice + 0.35*x_cereal + 0.50*x_bar",
+      "variables": [
+        {
+          "name": "x_juice",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": 3.0
+        },
+        {
+          "name": "x_cereal",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": 4.0
+        },
+        {
+          "name": "x_bar",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": 5.0
+        }
+      ],
+      "constraints": [
+        {
+          "name": "vitamin_c",
+          "expression": "120*x_juice + 40*x_cereal + 30*x_bar",
+          "sense": ">=",
+          "rhs": 90.0
+        },
+        {
+          "name": "calories",
+          "expression": "110*x_juice + 150*x_cereal + 200*x_bar",
+          "sense": ">=",
+          "rhs": 500.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 1.166666655
+  },
+  {
+    "id": "diet_06",
+    "family": "diet",
+    "prompt": "I have a budget of $5.00 for protein foods. Lentils cost $0.90 per serving with 18 g protein (at most 3 servings). Tuna costs $1.50 per serving with 25 g protein (at most 2 servings). Tofu costs $1.10 per serving with 15 g protein (at most 3 servings). Maximize total protein without exceeding the budget.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "diet",
+      "objective_sense": "maximize",
+      "objective_expression": "18*x_lentils + 25*x_tuna + 15*x_tofu",
+      "variables": [
+        {
+          "name": "x_lentils",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": 3.0
+        },
+        {
+          "name": "x_tuna",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": 2.0
+        },
+        {
+          "name": "x_tofu",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": 3.0
+        }
+      ],
+      "constraints": [
+        {
+          "name": "budget",
+          "expression": "0.90*x_lentils + 1.50*x_tuna + 1.10*x_tofu",
+          "sense": "<=",
+          "rhs": 5.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 92.3333325
+  },
+  {
+    "id": "diet_07",
+    "family": "diet",
+    "prompt": "Plan the cheapest weekly diet using rice, beans, and chicken so that I get enough protein and calories.",
+    "ambiguous": true,
+    "ground_truth_spec": null,
+    "ground_truth_status": null,
+    "ground_truth_objective": null
+  },
+  {
+    "id": "diet_08",
+    "family": "diet",
+    "prompt": "Blend two iron ores into a 50-ton batch that must average at least 40% iron. Ore A costs $30 per ton and is 25% iron. Ore B costs $50 per ton. Minimize the cost of the batch.",
+    "ambiguous": true,
+    "ground_truth_spec": null,
+    "ground_truth_status": null,
+    "ground_truth_objective": null
+  },
+  {
+    "id": "diet_09",
+    "family": "diet",
+    "prompt": "Make a 1 kg flour blend from corn flour and rice flour. Corn flour costs $0.40 per kg and is 9% protein; rice flour costs $0.55 per kg and is 7% protein. The blend must be at least 20% protein. Minimize cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "diet",
+      "objective_sense": "minimize",
+      "objective_expression": "0.40*x_corn + 0.55*x_rice",
+      "variables": [
+        {
+          "name": "x_corn",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "x_rice",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "batch",
+          "expression": "x_corn + x_rice",
+          "sense": "==",
+          "rhs": 1.0
+        },
+        {
+          "name": "protein",
+          "expression": "0.09*x_corn + 0.07*x_rice",
+          "sense": ">=",
+          "rhs": 0.2
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Infeasible",
+    "ground_truth_objective": null
+  },
+  {
+    "id": "transport_01",
+    "family": "transportation",
+    "prompt": "Plant A can ship up to 100 units and plant B up to 80 units. Store 1 needs 60 units, store 2 needs 70, and store 3 needs 40. Per-unit shipping costs: A to store 1 is $4, A to 2 is $6, A to 3 is $9; B to 1 is $5, B to 2 is $3, B to 3 is $2. Minimize total shipping cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "transportation",
+      "objective_sense": "minimize",
+      "objective_expression": "4*ship_A_1 + 6*ship_A_2 + 9*ship_A_3 + 5*ship_B_1 + 3*ship_B_2 + 2*ship_B_3",
+      "variables": [
+        {
+          "name": "ship_A_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_A_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_A_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_B_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_B_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_B_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "supply_A",
+          "expression": "ship_A_1 + ship_A_2 + ship_A_3",
+          "sense": "<=",
+          "rhs": 100.0
+        },
+        {
+          "name": "supply_B",
+          "expression": "ship_B_1 + ship_B_2 + ship_B_3",
+          "sense": "<=",
+          "rhs": 80.0
+        },
+        {
+          "name": "demand_1",
+          "expression": "ship_A_1 + ship_B_1",
+          "sense": ">=",
+          "rhs": 60.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "ship_A_2 + ship_B_2",
+          "sense": ">=",
+          "rhs": 70.0
+        },
+        {
+          "name": "demand_3",
+          "expression": "ship_A_3 + ship_B_3",
+          "sense": ">=",
+          "rhs": 40.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 620.0
+  },
+  {
+    "id": "transport_02",
+    "family": "transportation",
+    "prompt": "Three quarries supply two construction sites with gravel. Quarry 1 has 30 tons, quarry 2 has 40 tons, quarry 3 has 50 tons. Site 1 needs 55 tons and site 2 needs 45 tons. Hauling costs per ton: quarry 1 to site 1 $6, to site 2 $8; quarry 2 to site 1 $7, to site 2 $5; quarry 3 to site 1 $4, to site 2 $9. Minimize total hauling cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "transportation",
+      "objective_sense": "minimize",
+      "objective_expression": "6*ship_1_1 + 8*ship_1_2 + 7*ship_2_1 + 5*ship_2_2 + 4*ship_3_1 + 9*ship_3_2",
+      "variables": [
+        {
+          "name": "ship_1_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_1_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_2_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_2_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_3_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_3_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "supply_1",
+          "expression": "ship_1_1 + ship_1_2",
+          "sense": "<=",
+          "rhs": 30.0
+        },
+        {
+          "name": "supply_2",
+          "expression": "ship_2_1 + ship_2_2",
+          "sense": "<=",
+          "rhs": 40.0
+        },
+        {
+          "name": "supply_3",
+          "expression": "ship_3_1 + ship_3_2",
+          "sense": "<=",
+          "rhs": 50.0
+        },
+        {
+          "name": "demand_1",
+          "expression": "ship_1_1 + ship_2_1 + ship_3_1",
+          "sense": ">=",
+          "rhs": 55.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "ship_1_2 + ship_2_2 + ship_3_2",
+          "sense": ">=",
+          "rhs": 45.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 470.0
+  },
+  {
+    "id": "transport_03",
+    "family": "transportation",
+    "prompt": "Warehouse A holds 25 pallets and warehouse B holds 35 pallets. Customer 1 needs 30 pallets and customer 2 needs 30 pallets. Delivery costs per pallet: A to customer 1 $3, A to customer 2 $7, B to customer 1 $6, B to customer 2 $2. Minimize delivery cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "transportation",
+      "objective_sense": "minimize",
+      "objective_expression": "3*ship_A_1 + 7*ship_A_2 + 6*ship_B_1 + 2*ship_B_2",
+      "variables": [
+        {
+          "name": "ship_A_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_A_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_B_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_B_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "supply_A",
+          "expression": "ship_A_1 + ship_A_2",
+          "sense": "<=",
+          "rhs": 25.0
+        },
+        {
+          "name": "supply_B",
+          "expression": "ship_B_1 + ship_B_2",
+          "sense": "<=",
+          "rhs": 35.0
+        },
+        {
+          "name": "demand_1",
+          "expression": "ship_A_1 + ship_B_1",
+          "sense": ">=",
+          "rhs": 30.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "ship_A_2 + ship_B_2",
+          "sense": ">=",
+          "rhs": 30.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 165.0
+  },
+  {
+    "id": "transport_04",
+    "family": "transportation",
+    "prompt": "Assign three technicians to three jobs, one job each and every job covered. Completion times in hours: tech 1 takes 4, 7, 3 hours on jobs 1, 2, 3; tech 2 takes 2, 6, 5; tech 3 takes 8, 3, 4. Minimize total completion time.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "transportation",
+      "objective_sense": "minimize",
+      "objective_expression": "4*a_1_1 + 7*a_1_2 + 3*a_1_3 + 2*a_2_1 + 6*a_2_2 + 5*a_2_3 + 8*a_3_1 + 3*a_3_2 + 4*a_3_3",
+      "variables": [
+        {
+          "name": "a_1_1",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "a_1_2",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "a_1_3",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "a_2_1",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "a_2_2",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "a_2_3",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "a_3_1",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "a_3_2",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "a_3_3",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "tech_1",
+          "expression": "a_1_1 + a_1_2 + a_1_3",
+          "sense": "==",
+          "rhs": 1.0
+        },
+        {
+          "name": "tech_2",
+          "expression": "a_2_1 + a_2_2 + a_2_3",
+          "sense": "==",
+          "rhs": 1.0
+        },
+        {
+          "name": "tech_3",
+          "expression": "a_3_1 + a_3_2 + a_3_3",
+          "sense": "==",
+          "rhs": 1.0
+        },
+        {
+          "name": "job_1",
+          "expression": "a_1_1 + a_2_1 + a_3_1",
+          "sense": "==",
+          "rhs": 1.0
+        },
+        {
+          "name": "job_2",
+          "expression": "a_1_2 + a_2_2 + a_3_2",
+          "sense": "==",
+          "rhs": 1.0
+        },
+        {
+          "name": "job_3",
+          "expression": "a_1_3 + a_2_3 + a_3_3",
+          "sense": "==",
+          "rhs": 1.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 8.0
+  },
+  {
+    "id": "transport_05",
+    "family": "transportation",
+    "prompt": "Two bakeries supply three cafes with bread. Bakery North can bake 70 loaves, bakery South 50 loaves. Cafes 1, 2, 3 need 40, 35, 30 loaves. Delivery cost per loaf: North to cafes 1/2/3 costs $0.50/$0.80/$0.60; South to cafes 1/2/3 costs $0.90/$0.40/$0.70. South cannot deliver to cafe 1 on Sundays, and this plan is for a Sunday, so that route is unavailable. Minimize delivery cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "transportation",
+      "objective_sense": "minimize",
+      "objective_expression": "0.50*ship_N_1 + 0.80*ship_N_2 + 0.60*ship_N_3 + 0.90*ship_S_1 + 0.40*ship_S_2 + 0.70*ship_S_3",
+      "variables": [
+        {
+          "name": "ship_N_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_N_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_N_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_S_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": 0.0
+        },
+        {
+          "name": "ship_S_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_S_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "supply_N",
+          "expression": "ship_N_1 + ship_N_2 + ship_N_3",
+          "sense": "<=",
+          "rhs": 70.0
+        },
+        {
+          "name": "supply_S",
+          "expression": "ship_S_1 + ship_S_2 + ship_S_3",
+          "sense": "<=",
+          "rhs": 50.0
+        },
+        {
+          "name": "demand_1",
+          "expression": "ship_N_1 + ship_S_1",
+          "sense": ">=",
+          "rhs": 40.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "ship_N_2 + ship_S_2",
+          "sense": ">=",
+          "rhs": 35.0
+        },
+        {
+          "name": "demand_3",
+          "expression": "ship_N_3 + ship_S_3",
+          "sense": ">=",
+          "rhs": 30.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 52.0
+  },
+  {
+    "id": "transport_06",
+    "family": "transportation",
+    "prompt": "Ship gravel in whole truckloads from two pits to two sites. Pit 1 can send 7 truckloads, pit 2 can send 6. Site A needs 5 truckloads, site B needs 6. Costs per truckload: pit 1 to A $40, pit 1 to B $55, pit 2 to A $50, pit 2 to B $35. Shipments must be whole truckloads. Minimize cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "transportation",
+      "objective_sense": "minimize",
+      "objective_expression": "40*ship_1_A + 55*ship_1_B + 50*ship_2_A + 35*ship_2_B",
+      "variables": [
+        {
+          "name": "ship_1_A",
+          "var_type": "integer",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_1_B",
+          "var_type": "integer",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_2_A",
+          "var_type": "integer",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_2_B",
+          "var_type": "integer",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "supply_1",
+          "expression": "ship_1_A + ship_1_B",
+          "sense": "<=",
+          "rhs": 7.0
+        },
+        {
+          "name": "supply_2",
+          "expression": "ship_2_A + ship_2_B",
+          "sense": "<=",
+          "rhs": 6.0
+        },
+        {
+          "name": "demand_A",
+          "expression": "ship_1_A + ship_2_A",
+          "sense": ">=",
+          "rhs": 5.0
+        },
+        {
+          "name": "demand_B",
+          "expression": "ship_1_B + ship_2_B",
+          "sense": ">=",
+          "rhs": 6.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 410.0
+  },
+  {
+    "id": "transport_07",
+    "family": "transportation",
+    "prompt": "Two warehouses ship to four retail stores. Shipping costs vary by route. How should we route shipments to minimize total cost?",
+    "ambiguous": true,
+    "ground_truth_spec": null,
+    "ground_truth_status": null,
+    "ground_truth_objective": null
+  },
+  {
+    "id": "transport_08",
+    "family": "transportation",
+    "prompt": "Plant X has 90 units and plant Y has 60. Store 1 needs 50 units and store 2 needs 45. Store 3 also needs to be served but its requirement hasn't been confirmed yet. Shipping costs per unit: X to stores 1/2/3 are $3/$5/$4; Y to stores 1/2/3 are $6/$2/$7. Minimize shipping cost.",
+    "ambiguous": true,
+    "ground_truth_spec": null,
+    "ground_truth_status": null,
+    "ground_truth_objective": null
+  },
+  {
+    "id": "transport_09",
+    "family": "transportation",
+    "prompt": "Depot 1 has 40 units and depot 2 has 30 units. Region A requires 50 units and region B requires 40 units \u2014 both must be fully met. Costs per unit: depot 1 to A $2, depot 1 to B $4, depot 2 to A $3, depot 2 to B $1. Minimize cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "transportation",
+      "objective_sense": "minimize",
+      "objective_expression": "2*ship_1_A + 4*ship_1_B + 3*ship_2_A + 1*ship_2_B",
+      "variables": [
+        {
+          "name": "ship_1_A",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_1_B",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_2_A",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_2_B",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "supply_1",
+          "expression": "ship_1_A + ship_1_B",
+          "sense": "<=",
+          "rhs": 40.0
+        },
+        {
+          "name": "supply_2",
+          "expression": "ship_2_A + ship_2_B",
+          "sense": "<=",
+          "rhs": 30.0
+        },
+        {
+          "name": "demand_A",
+          "expression": "ship_1_A + ship_2_A",
+          "sense": ">=",
+          "rhs": 50.0
+        },
+        {
+          "name": "demand_B",
+          "expression": "ship_1_B + ship_2_B",
+          "sense": ">=",
+          "rhs": 40.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Infeasible",
+    "ground_truth_objective": null
+  },
+  {
+    "id": "facility_01",
+    "family": "facility_location",
+    "prompt": "We may open a warehouse in Dallas (fixed cost $500, capacity 120 units) and/or Reno (fixed cost $400, capacity 100 units). Regions 1, 2, 3 demand 50, 60, 40 units. Unit service costs: Dallas to regions 1/2/3 cost $2/$3/$8; Reno to regions 1/2/3 cost $6/$4/$3. Decide which warehouses to open and how to serve demand at minimum total cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "facility_location",
+      "objective_sense": "minimize",
+      "objective_expression": "500*open_dallas + 400*open_reno + 2*serve_d_1 + 3*serve_d_2 + 8*serve_d_3 + 6*serve_r_1 + 4*serve_r_2 + 3*serve_r_3",
+      "variables": [
+        {
+          "name": "open_dallas",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "open_reno",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_d_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_d_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_d_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_r_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_r_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_r_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "demand_1",
+          "expression": "serve_d_1 + serve_r_1",
+          "sense": ">=",
+          "rhs": 50.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "serve_d_2 + serve_r_2",
+          "sense": ">=",
+          "rhs": 60.0
+        },
+        {
+          "name": "demand_3",
+          "expression": "serve_d_3 + serve_r_3",
+          "sense": ">=",
+          "rhs": 40.0
+        },
+        {
+          "name": "link_dallas",
+          "expression": "serve_d_1 + serve_d_2 + serve_d_3 - 120*open_dallas",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "link_reno",
+          "expression": "serve_r_1 + serve_r_2 + serve_r_3 - 100*open_reno",
+          "sense": "<=",
+          "rhs": 0.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 1300.0
+  },
+  {
+    "id": "facility_02",
+    "family": "facility_location",
+    "prompt": "Three candidate depots can each handle up to 200 orders: depot A costs $100 to open with delivery costs of $2 per order to zone 1 and $2 to zone 2; depot B costs $120 to open with delivery costs of $1 and $1; depot C costs $150 to open with delivery costs of $3 and $3. Zone 1 has 40 orders and zone 2 has 60 orders. Which depots should open to minimize total cost?",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "facility_location",
+      "objective_sense": "minimize",
+      "objective_expression": "100*open_a + 120*open_b + 150*open_c + 2*serve_a_1 + 2*serve_a_2 + 1*serve_b_1 + 1*serve_b_2 + 3*serve_c_1 + 3*serve_c_2",
+      "variables": [
+        {
+          "name": "open_a",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "open_b",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "open_c",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_a_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_a_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_b_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_b_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_c_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_c_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "demand_1",
+          "expression": "serve_a_1 + serve_b_1 + serve_c_1",
+          "sense": ">=",
+          "rhs": 40.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "serve_a_2 + serve_b_2 + serve_c_2",
+          "sense": ">=",
+          "rhs": 60.0
+        },
+        {
+          "name": "link_a",
+          "expression": "serve_a_1 + serve_a_2 - 200*open_a",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "link_b",
+          "expression": "serve_b_1 + serve_b_2 - 200*open_b",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "link_c",
+          "expression": "serve_c_1 + serve_c_2 - 200*open_c",
+          "sense": "<=",
+          "rhs": 0.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 220.0
+  },
+  {
+    "id": "facility_03",
+    "family": "facility_location",
+    "prompt": "Two uncapacitated fulfillment centers are proposed: center East costs $300 to open and center West costs $250. Customers 1, 2, 3 order 20, 30, 25 units. Per-unit shipping: East to customers 1/2/3 costs $1/$4/$6; West to customers 1/2/3 costs $5/$2/$2. Either center could serve all demand. Minimize fixed plus shipping cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "facility_location",
+      "objective_sense": "minimize",
+      "objective_expression": "300*open_east + 250*open_west + 1*serve_e_1 + 4*serve_e_2 + 6*serve_e_3 + 5*serve_w_1 + 2*serve_w_2 + 2*serve_w_3",
+      "variables": [
+        {
+          "name": "open_east",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "open_west",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_e_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_e_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_e_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_w_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_w_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_w_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "demand_1",
+          "expression": "serve_e_1 + serve_w_1",
+          "sense": ">=",
+          "rhs": 20.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "serve_e_2 + serve_w_2",
+          "sense": ">=",
+          "rhs": 30.0
+        },
+        {
+          "name": "demand_3",
+          "expression": "serve_e_3 + serve_w_3",
+          "sense": ">=",
+          "rhs": 25.0
+        },
+        {
+          "name": "link_east",
+          "expression": "serve_e_1 + serve_e_2 + serve_e_3 - 75*open_east",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "link_west",
+          "expression": "serve_w_1 + serve_w_2 + serve_w_3 - 75*open_west",
+          "sense": "<=",
+          "rhs": 0.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 460.0
+  },
+  {
+    "id": "facility_04",
+    "family": "facility_location",
+    "prompt": "We can open plants in Ohio (fixed cost $900, capacity 150) and Georgia (fixed cost $700, capacity 140). Markets 1 and 2 demand 120 and 100 units. Unit production-plus-shipping costs: Ohio to market 1 $3, Ohio to market 2 $6, Georgia to market 1 $7, Georgia to market 2 $2. Total demand exceeds either single plant's capacity. Minimize total cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "facility_location",
+      "objective_sense": "minimize",
+      "objective_expression": "900*open_ohio + 700*open_georgia + 3*serve_o_1 + 6*serve_o_2 + 7*serve_g_1 + 2*serve_g_2",
+      "variables": [
+        {
+          "name": "open_ohio",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "open_georgia",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_o_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_o_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_g_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_g_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "demand_1",
+          "expression": "serve_o_1 + serve_g_1",
+          "sense": ">=",
+          "rhs": 120.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "serve_o_2 + serve_g_2",
+          "sense": ">=",
+          "rhs": 100.0
+        },
+        {
+          "name": "link_ohio",
+          "expression": "serve_o_1 + serve_o_2 - 150*open_ohio",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "link_georgia",
+          "expression": "serve_g_1 + serve_g_2 - 140*open_georgia",
+          "sense": "<=",
+          "rhs": 0.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 2160.0
+  },
+  {
+    "id": "facility_05",
+    "family": "facility_location",
+    "prompt": "Choose among three candidate clinics to serve three neighborhoods. Opening costs: clinic A $200, clinic B $180, clinic C $260. Capacities: A 80 patients, B 60, C 100. Neighborhood demands: 45, 50, 40 patients. Per-patient travel costs: A to neighborhoods 1/2/3 cost $2/$5/$4; B costs $6/$1/$3; C costs $4/$4/$2. Minimize opening plus travel cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "facility_location",
+      "objective_sense": "minimize",
+      "objective_expression": "200*open_a + 180*open_b + 260*open_c + 2*serve_a_1 + 5*serve_a_2 + 4*serve_a_3 + 6*serve_b_1 + 1*serve_b_2 + 3*serve_b_3 + 4*serve_c_1 + 4*serve_c_2 + 2*serve_c_3",
+      "variables": [
+        {
+          "name": "open_a",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "open_b",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "open_c",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_a_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_a_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_a_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_b_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_b_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_b_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_c_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_c_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_c_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "demand_1",
+          "expression": "serve_a_1 + serve_b_1 + serve_c_1",
+          "sense": ">=",
+          "rhs": 45.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "serve_a_2 + serve_b_2 + serve_c_2",
+          "sense": ">=",
+          "rhs": 50.0
+        },
+        {
+          "name": "demand_3",
+          "expression": "serve_a_3 + serve_b_3 + serve_c_3",
+          "sense": ">=",
+          "rhs": 40.0
+        },
+        {
+          "name": "link_a",
+          "expression": "serve_a_1 + serve_a_2 + serve_a_3 - 80*open_a",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "link_b",
+          "expression": "serve_b_1 + serve_b_2 + serve_b_3 - 60*open_b",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "link_c",
+          "expression": "serve_c_1 + serve_c_2 + serve_c_3 - 100*open_c",
+          "sense": "<=",
+          "rhs": 0.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 670.0
+  },
+  {
+    "id": "facility_06",
+    "family": "facility_location",
+    "prompt": "Company policy allows opening at most one of two candidate hubs. Hub North costs $350 to open with capacity 90; hub South costs $300 with capacity 90. Customers 1 and 2 demand 30 and 50 units. Unit delivery costs: North to customers 1/2 cost $2/$3; South costs $4/$1. Minimize total cost while meeting all demand.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "facility_location",
+      "objective_sense": "minimize",
+      "objective_expression": "350*open_north + 300*open_south + 2*serve_n_1 + 3*serve_n_2 + 4*serve_s_1 + 1*serve_s_2",
+      "variables": [
+        {
+          "name": "open_north",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "open_south",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_n_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_n_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_s_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_s_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "demand_1",
+          "expression": "serve_n_1 + serve_s_1",
+          "sense": ">=",
+          "rhs": 30.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "serve_n_2 + serve_s_2",
+          "sense": ">=",
+          "rhs": 50.0
+        },
+        {
+          "name": "link_north",
+          "expression": "serve_n_1 + serve_n_2 - 90*open_north",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "link_south",
+          "expression": "serve_s_1 + serve_s_2 - 90*open_south",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "at_most_one",
+          "expression": "open_north + open_south",
+          "sense": "<=",
+          "rhs": 1.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 470.0
+  },
+  {
+    "id": "facility_07",
+    "family": "facility_location",
+    "prompt": "We're deciding whether to open distribution centers in Chicago and Atlanta to serve our Midwest and Southeast regions. Shipping is cheaper from the closer center. Which should we open?",
+    "ambiguous": true,
+    "ground_truth_spec": null,
+    "ground_truth_status": null,
+    "ground_truth_objective": null
+  },
+  {
+    "id": "facility_08",
+    "family": "facility_location",
+    "prompt": "Candidate warehouses W1 and W2 have fixed opening costs of $600 and $450. Customer zones A and B need 70 and 90 units. W1 can hold 200 units but W2's capacity is still being negotiated. Unit shipping: W1 to A/B costs $3/$5; W2 to A/B costs $6/$2. Minimize total cost.",
+    "ambiguous": true,
+    "ground_truth_spec": null,
+    "ground_truth_status": null,
+    "ground_truth_objective": null
+  },
+  {
+    "id": "facility_09",
+    "family": "facility_location",
+    "prompt": "Two kitchens can be opened to prepare meals: kitchen 1 (fixed cost $150, capacity 40 meals) and kitchen 2 (fixed cost $130, capacity 35 meals). Sites A and B require 50 and 45 meals \u2014 all demand must be met. Per-meal delivery: kitchen 1 to A/B costs $1/$2; kitchen 2 to A/B costs $2/$1. Minimize total cost.",
+    "ambiguous": false,
+    "ground_truth_spec": {
+      "problem_family": "facility_location",
+      "objective_sense": "minimize",
+      "objective_expression": "150*open_k1 + 130*open_k2 + 1*serve_1_a + 2*serve_1_b + 2*serve_2_a + 1*serve_2_b",
+      "variables": [
+        {
+          "name": "open_k1",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "open_k2",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_1_a",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_1_b",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_2_a",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_2_b",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "demand_a",
+          "expression": "serve_1_a + serve_2_a",
+          "sense": ">=",
+          "rhs": 50.0
+        },
+        {
+          "name": "demand_b",
+          "expression": "serve_1_b + serve_2_b",
+          "sense": ">=",
+          "rhs": 45.0
+        },
+        {
+          "name": "link_1",
+          "expression": "serve_1_a + serve_1_b - 40*open_k1",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "link_2",
+          "expression": "serve_2_a + serve_2_b - 35*open_k2",
+          "sense": "<=",
+          "rhs": 0.0
+        }
+      ],
+      "raw_llm_notes": "ground truth (hand-written)"
+    },
+    "ground_truth_status": "Infeasible",
+    "ground_truth_objective": null
+  }
+]
