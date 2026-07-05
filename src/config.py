@@ -9,7 +9,16 @@ load_dotenv()
 # LLM provider: Google Gemini (via the google-genai SDK).
 # GEMINI_API_KEY is preferred; GOOGLE_API_KEY is accepted as a fallback so the
 # SDK's own default env var also works.
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
+def _clean_key(raw: str) -> str:
+    """Strip whitespace and any surrounding quotes or angle brackets that get
+    pasted in by accident (e.g. a settings field that wrapped the value in
+    <...>), which would otherwise make the key fail auth."""
+    return raw.strip().strip("<>").strip("\"'").strip()
+
+
+GEMINI_API_KEY = _clean_key(
+    os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
+)
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 JUDGE_MODEL = os.getenv("JUDGE_MODEL", GEMINI_MODEL)
 # Generous default: Gemini 2.5 models spend part of the output budget on
