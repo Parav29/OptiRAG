@@ -1,7 +1,7 @@
 """Modeling Agent: (ProblemIntake, RetrievedContext) -> OptimizationSpec.
 
-Structured output is obtained via Anthropic tool-calling with the Pydantic
-schema as the tool input schema — no free-text parsing. On validation failure
+Structured output is obtained via Gemini JSON-schema-constrained output with
+the Pydantic schema — no ad-hoc free-text parsing. On validation failure
 the orchestrator calls this again with the validator's error list, which is
 appended to the prompt as explicit repair instructions.
 """

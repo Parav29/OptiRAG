@@ -1,4 +1,4 @@
-anthropic>=0.40
+google-genai>=1.0
 pydantic>=2.6
 langgraph>=0.2
 pulp>=2.8

@@ -1,27 +1,41 @@
-"""Thin Anthropic client wrapper: tool-call structured output + usage tracking."""
+"""Thin Google Gemini client wrapper: JSON-schema structured output + usage
+tracking.
 
+Structured output is obtained by forcing a JSON response
+(``response_mime_type="application/json"``) and embedding the target model's
+JSON Schema in the system instruction, then validating the returned JSON with
+Pydantic. This prompt-plus-schema approach is used instead of Gemini's
+constrained ``response_schema`` decoding because our contracts include
+free-form ``dict`` fields (e.g. ``ProblemIntake.entities``), which Gemini's
+constrained-decoding schema does not accept (it requires every OBJECT to
+declare properties). The Validator + retry loop downstream compensates for the
+softer guarantee on the modeling spec.
+"""
+
+import json
 from dataclasses import dataclass
 from typing import Any, Type, TypeVar
 
-import anthropic
+from google import genai
+from google.genai import types
 from pydantic import BaseModel
 
 from src import config
 
 T = TypeVar("T", bound=BaseModel)
 
-_client: anthropic.Anthropic | None = None
+_client: genai.Client | None = None
 
 
-def get_client() -> anthropic.Anthropic:
+def get_client() -> genai.Client:
     global _client
     if _client is None:
-        if not config.ANTHROPIC_API_KEY:
+        if not config.GEMINI_API_KEY:
             raise RuntimeError(
-                "ANTHROPIC_API_KEY is not set. Copy .env.example to .env and "
-                "fill in your key."
+                "GEMINI_API_KEY is not set. Copy .env.example to .env and fill "
+                "in your Google Gemini API key (GOOGLE_API_KEY also works)."
             )
-        _client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
+        _client = genai.Client(api_key=config.GEMINI_API_KEY)
     return _client
 
 
@@ -31,8 +45,10 @@ class Usage:
     output_tokens: int = 0
 
     def add(self, response: Any) -> None:
-        self.input_tokens += response.usage.input_tokens
-        self.output_tokens += response.usage.output_tokens
+        meta = getattr(response, "usage_metadata", None)
+        if meta is not None:
+            self.input_tokens += getattr(meta, "prompt_token_count", 0) or 0
+            self.output_tokens += getattr(meta, "candidates_token_count", 0) or 0
 
 
 def structured_call(
@@ -44,29 +60,37 @@ def structured_call(
     usage: Usage | None = None,
     model: str | None = None,
 ) -> T:
-    """Force the model to answer via a single tool call whose input schema is
-    the given Pydantic model; parse and return the validated instance."""
+    """Force a JSON response matching ``output_model`` and return the validated
+    instance. ``tool_name``/``tool_description`` are folded into the instruction
+    to describe the expected output object."""
+    schema = json.dumps(output_model.model_json_schema(), indent=2)
+    system_instruction = (
+        f"{system}\n\n"
+        f"Your task ({tool_name}): {tool_description}\n"
+        "Respond with a SINGLE JSON object and nothing else — no prose, no "
+        "markdown, no code fences. It MUST conform to this JSON Schema:\n"
+        f"{schema}"
+    )
     client = get_client()
-    response = client.messages.create(
-        model=model or config.ANTHROPIC_MODEL,
-        max_tokens=config.MAX_TOKENS,
-        system=system,
-        messages=[{"role": "user", "content": user}],
-        tools=[
-            {
-                "name": tool_name,
-                "description": tool_description,
-                "input_schema": output_model.model_json_schema(),
-            }
-        ],
-        tool_choice={"type": "tool", "name": tool_name},
+    response = client.models.generate_content(
+        model=model or config.GEMINI_MODEL,
+        contents=user,
+        config=types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            temperature=0.0,
+            max_output_tokens=config.MAX_TOKENS,
+            response_mime_type="application/json",
+        ),
     )
     if usage is not None:
         usage.add(response)
-    for block in response.content:
-        if block.type == "tool_use" and block.name == tool_name:
-            return output_model.model_validate(block.input)
-    raise RuntimeError(f"Model did not return the expected {tool_name} tool call.")
+    text = response.text
+    if not text or not text.strip():
+        raise RuntimeError(
+            f"Gemini returned no content for {tool_name}; the response may have "
+            "been truncated or blocked."
+        )
+    return output_model.model_validate_json(text)
 
 
 def text_call(
@@ -76,12 +100,15 @@ def text_call(
     model: str | None = None,
 ) -> str:
     client = get_client()
-    response = client.messages.create(
-        model=model or config.ANTHROPIC_MODEL,
-        max_tokens=config.MAX_TOKENS,
-        system=system,
-        messages=[{"role": "user", "content": user}],
+    response = client.models.generate_content(
+        model=model or config.GEMINI_MODEL,
+        contents=user,
+        config=types.GenerateContentConfig(
+            system_instruction=system,
+            temperature=0.0,
+            max_output_tokens=config.MAX_TOKENS,
+        ),
     )
     if usage is not None:
         usage.add(response)
-    return "".join(block.text for block in response.content if block.type == "text")
+    return response.text or ""

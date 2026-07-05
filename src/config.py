@@ -6,10 +6,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5")
-JUDGE_MODEL = os.getenv("JUDGE_MODEL", ANTHROPIC_MODEL)
-MAX_TOKENS = int(os.getenv("MAX_TOKENS", "4096"))
+# LLM provider: Google Gemini (via the google-genai SDK).
+# GEMINI_API_KEY is preferred; GOOGLE_API_KEY is accepted as a fallback so the
+# SDK's own default env var also works.
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+JUDGE_MODEL = os.getenv("JUDGE_MODEL", GEMINI_MODEL)
+# Generous default: Gemini 2.5 models spend part of the output budget on
+# internal "thinking", so a low cap can truncate structured JSON.
+MAX_TOKENS = int(os.getenv("MAX_TOKENS", "8192"))
 
 # Retrieval
 QDRANT_URL = os.getenv("QDRANT_URL", "")  # empty -> in-memory Qdrant (tests/dev)

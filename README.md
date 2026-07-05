@@ -6,7 +6,8 @@ and a quantitative evaluation harness.
 Describe a planning problem in plain English ("blend corn and soy into the
 cheapest feed with 30% protein…"); OptiAgent classifies it, retrieves
 formulation knowledge (hybrid dense + BM25 with reranking), emits a validated
-structured optimization spec via Claude tool-calling, solves it with PuLP/CBC,
+structured optimization spec via Google Gemini JSON-schema output, solves it
+with PuLP/CBC,
 and explains the solution — including which constraints are binding.
 
 Supported problem families (deliberately narrow so the agent/RAG/eval side
@@ -39,7 +40,7 @@ gets full attention):
                          │         ▼                                │
                          │   ┌────────────┐                         │
                          │   │  Modeling  │  emits structured spec  │
-                         │   │   Agent    │  (Pydantic, tool-call)  │
+                         │   │   Agent    │  (Pydantic JSON output) │
                          │   └─────┬──────┘                         │
                          │         ▼                                │
                          │   ┌────────────┐   fail → retry loop     │
@@ -68,7 +69,7 @@ gets full attention):
 ## Quickstart
 
 ```bash
-cp .env.example .env        # fill in ANTHROPIC_API_KEY
+cp .env.example .env        # fill in GEMINI_API_KEY
 docker-compose up --build
 ```
 
@@ -79,7 +80,7 @@ Local dev without Docker (uses an in-memory Qdrant automatically):
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env         # fill in ANTHROPIC_API_KEY
+cp .env.example .env         # fill in GEMINI_API_KEY
 uvicorn src.api:app --reload # terminal 1
 streamlit run ui/streamlit_app.py  # terminal 2
 ```
@@ -117,7 +118,7 @@ python -m eval.run_eval         # full run: 27 problems × RAG on/off
   records).
 
 > **Status:** the harness is fully implemented; run it with your
-> `ANTHROPIC_API_KEY` to generate `eval/report.md` — headline numbers belong
+> `GEMINI_API_KEY` to generate `eval/report.md` — headline numbers belong
 > here once produced by a real run (never fabricate them).
 
 ## Tests
@@ -132,6 +133,13 @@ optima: diet ≈ `$0.6231/kg`, transportation `$620`, facility location `$1300`.
 
 ## Design notes
 
+- **LLM provider:** Google Gemini via the `google-genai` SDK (the build spec
+  in `CLAUDE.md` originally pinned Anthropic/Claude; this deviation was made
+  deliberately at the user's request). The provider lives entirely behind
+  `src/llm.py` — every agent talks to `structured_call` / `text_call`, so
+  swapping providers is a one-file change. Structured output uses a forced
+  JSON response with the Pydantic JSON Schema in the instruction, validated
+  with Pydantic. `GEMINI_MODEL` / `JUDGE_MODEL` are config values.
 - **Safe expression handling:** LLM-emitted expressions are parsed with an
   AST whitelist (numbers, declared variable names, `+ - * /`, parentheses) —
   never `eval`. Nonlinear or unknown-name expressions are rejected and the

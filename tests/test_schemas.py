@@ -61,7 +61,7 @@ def test_solve_result_and_explained_solution():
 
 
 def test_tool_schema_generation():
-    # The modeling agent passes this schema to Anthropic tool-calling.
+    # The modeling agent embeds this schema in the Gemini JSON-output request.
     schema = OptimizationSpec.model_json_schema()
     assert "properties" in schema
     assert set(schema["required"]) >= {
