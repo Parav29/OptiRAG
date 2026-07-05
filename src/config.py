@@ -19,7 +19,10 @@ def _clean_key(raw: str) -> str:
 GEMINI_API_KEY = _clean_key(
     os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
 )
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+# gemini-2.5-flash-lite is the default: its free-tier daily request quota is
+# far higher than gemini-2.5-flash's (observed 20 req/day on this project),
+# which matters because the eval harness needs dozens of calls per run.
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 JUDGE_MODEL = os.getenv("JUDGE_MODEL", GEMINI_MODEL)
 # Generous default: Gemini 2.5 models spend part of the output budget on
 # internal "thinking", so a low cap can truncate structured JSON.

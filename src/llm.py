@@ -51,12 +51,18 @@ def _throttle() -> None:
         _last_call[0] = time.monotonic()
 
 
-def _is_rate_limit(exc: Exception) -> bool:
+def _is_transient(exc: Exception) -> bool:
+    """True for errors worth retrying: rate limits (429) and transient server
+    overload (503/500), as opposed to permanent errors like a bad API key or
+    a malformed request (400/403), which should surface immediately."""
     text = str(exc).upper()
     code = getattr(exc, "code", None)
-    return code == 429 or "RESOURCE_EXHAUSTED" in text or "429" in text or (
-        "QUOTA" in text and "EXCEED" in text
-    )
+    if code in (429, 503, 500):
+        return True
+    return any(marker in text for marker in (
+        "RESOURCE_EXHAUSTED", "429", "UNAVAILABLE", "503",
+        "INTERNAL", "OVERLOADED",
+    )) or ("QUOTA" in text and "EXCEED" in text)
 
 
 def _retry_delay_hint(exc: Exception) -> float | None:
@@ -67,7 +73,8 @@ def _retry_delay_hint(exc: Exception) -> float | None:
 
 
 def _generate(model: str, contents: str, gen_config: "types.GenerateContentConfig"):
-    """One Gemini call with throttling and exponential backoff on 429s."""
+    """One Gemini call with throttling and exponential backoff on transient
+    errors (429 rate limit, 503/500 server overload)."""
     client = get_client()
     last_exc: Exception | None = None
     for attempt in range(config.GEMINI_MAX_RETRIES):
@@ -78,15 +85,16 @@ def _generate(model: str, contents: str, gen_config: "types.GenerateContentConfi
             )
         except Exception as exc:  # noqa: BLE001 - inspect to decide retry
             last_exc = exc
-            if not _is_rate_limit(exc) or attempt == config.GEMINI_MAX_RETRIES - 1:
+            if not _is_transient(exc) or attempt == config.GEMINI_MAX_RETRIES - 1:
                 raise
             backoff = _retry_delay_hint(exc) or min(
                 config.GEMINI_MAX_BACKOFF_S, 2.0 * (2 ** attempt)
             )
             backoff += random.uniform(0, 1.0)  # jitter
             logger.warning(
-                "Rate limited (attempt %d/%d); backing off %.1fs.",
+                "Transient error (attempt %d/%d); backing off %.1fs: %s",
                 attempt + 1, config.GEMINI_MAX_RETRIES, backoff,
+                str(exc)[:120],
             )
             time.sleep(backoff)
     raise last_exc  # pragma: no cover
