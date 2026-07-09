@@ -6,8 +6,8 @@ and a quantitative evaluation harness.
 Describe a planning problem in plain English ("blend corn and soy into the
 cheapest feed with 30% protein…"); OptiAgent classifies it, retrieves
 formulation knowledge (hybrid dense + BM25 with reranking), emits a validated
-structured optimization spec via Google Gemini JSON-schema output, solves it
-with PuLP/CBC,
+structured optimization spec via an LLM (NVIDIA NIM, OpenAI-compatible),
+solves it with PuLP/CBC,
 and explains the solution — including which constraints are binding.
 
 Supported problem families (deliberately narrow so the agent/RAG/eval side
@@ -154,13 +154,17 @@ optima: diet ≈ `$0.6231/kg`, transportation `$620`, facility location `$1300`.
 
 ## Design notes
 
-- **LLM provider:** Google Gemini via the `google-genai` SDK (the build spec
-  in `CLAUDE.md` originally pinned Anthropic/Claude; this deviation was made
-  deliberately at the user's request). The provider lives entirely behind
-  `src/llm.py` — every agent talks to `structured_call` / `text_call`, so
-  swapping providers is a one-file change. Structured output uses a forced
-  JSON response with the Pydantic JSON Schema in the instruction, validated
-  with Pydantic. `GEMINI_MODEL` / `JUDGE_MODEL` are config values.
+- **LLM provider:** NVIDIA NIM (`build.nvidia.com`) via its OpenAI-compatible
+  endpoint and the `openai` SDK — pipeline on `meta/llama-3.1-8b-instruct`,
+  judge on `meta/llama-3.1-70b-instruct` (the build spec in `CLAUDE.md`
+  originally pinned Anthropic/Claude; the provider was changed deliberately at
+  the user's request, first to Google Gemini and then to NVIDIA NIM for its
+  more generous free tier). The provider lives entirely behind `src/llm.py` —
+  every agent talks to `structured_call` / `text_call`, so pointing at any
+  other OpenAI-compatible endpoint is just a `LLM_BASE_URL` + key change.
+  Structured output embeds the Pydantic JSON Schema in the prompt, requests
+  JSON mode, and defensively extracts + validates the returned JSON.
+  `LLM_MODEL` / `JUDGE_MODEL` are config values.
 - **Safe expression handling:** LLM-emitted expressions are parsed with an
   AST whitelist (numbers, declared variable names, `+ - * /`, parentheses) —
   never `eval`. Nonlinear or unknown-name expressions are rejected and the

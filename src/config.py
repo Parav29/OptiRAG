@@ -6,9 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# LLM provider: Google Gemini (via the google-genai SDK).
-# GEMINI_API_KEY is preferred; GOOGLE_API_KEY is accepted as a fallback so the
-# SDK's own default env var also works.
+
 def _clean_key(raw: str) -> str:
     """Strip whitespace and any surrounding quotes or angle brackets that get
     pasted in by accident (e.g. a settings field that wrapped the value in
@@ -16,17 +14,19 @@ def _clean_key(raw: str) -> str:
     return raw.strip().strip("<>").strip("\"'").strip()
 
 
-GEMINI_API_KEY = _clean_key(
-    os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
+# LLM provider: NVIDIA NIM (build.nvidia.com), used through its
+# OpenAI-compatible REST endpoint. The provider lives entirely behind
+# src/llm.py; swapping to another OpenAI-compatible endpoint is just a base
+# URL + key change here.
+LLM_API_KEY = _clean_key(
+    os.getenv("NVIDIA_API_KEY") or os.getenv("LLM_API_KEY", "")
 )
-# gemini-2.5-flash-lite is the default: its free-tier daily request quota is
-# far higher than gemini-2.5-flash's (observed 20 req/day on this project),
-# which matters because the eval harness needs dozens of calls per run.
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
-JUDGE_MODEL = os.getenv("JUDGE_MODEL", GEMINI_MODEL)
-# Generous default: Gemini 2.5 models spend part of the output budget on
-# internal "thinking", so a low cap can truncate structured JSON.
-MAX_TOKENS = int(os.getenv("MAX_TOKENS", "8192"))
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://integrate.api.nvidia.com/v1")
+# Small, fast instruct model for the pipeline; a larger one for the judge,
+# since a grader should be at least as capable as what it grades.
+LLM_MODEL = os.getenv("LLM_MODEL", "meta/llama-3.1-8b-instruct")
+JUDGE_MODEL = os.getenv("JUDGE_MODEL", "meta/llama-3.1-70b-instruct")
+MAX_TOKENS = int(os.getenv("MAX_TOKENS", "4096"))
 
 # Retrieval
 QDRANT_URL = os.getenv("QDRANT_URL", "")  # empty -> in-memory Qdrant (tests/dev)
@@ -42,8 +42,9 @@ RRF_K = int(os.getenv("RRF_K", "60"))
 # Pipeline
 MAX_MODELING_ATTEMPTS = int(os.getenv("MAX_MODELING_ATTEMPTS", "3"))
 
-# Rate limiting — keep under the Gemini free-tier limits so calls are never
-# billed (the free tier returns HTTP 429 rather than charging when exceeded).
-GEMINI_CALLS_PER_MIN = float(os.getenv("GEMINI_CALLS_PER_MIN", "5"))
-GEMINI_MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", "5"))
-GEMINI_MAX_BACKOFF_S = float(os.getenv("GEMINI_MAX_BACKOFF_S", "90"))
+# Rate limiting — stay under the NVIDIA NIM free-tier limit (40 requests/min
+# per account). Default 30/min leaves headroom; the client also backs off on
+# 429s.
+LLM_CALLS_PER_MIN = float(os.getenv("LLM_CALLS_PER_MIN", "30"))
+LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "5"))
+LLM_MAX_BACKOFF_S = float(os.getenv("LLM_MAX_BACKOFF_S", "60"))
