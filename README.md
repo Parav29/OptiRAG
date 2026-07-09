@@ -117,9 +117,30 @@ python -m eval.run_eval         # full run: 27 problems × RAG on/off
   table and example transcripts) and `eval/results.json` (full per-run
   records).
 
-> **Status:** the harness is fully implemented; run it with your
-> `GEMINI_API_KEY` to generate `eval/report.md` — headline numbers belong
-> here once produced by a real run (never fabricate them).
+### Live results so far
+
+The full 27×2 ablation is gated by the Gemini free tier's **20 requests/day
+per model** cap (confirmed directly from the API's quota error, not
+estimated) — at ~5 calls per pipeline run, that's a handful of problems per
+day. A first live pass ran one problem per family end-to-end against the real
+Gemini API (see `eval/results.json` / `eval/report.md` for the raw data):
+
+| Problem | Family | Solve correct | Objective (agent vs. ground truth) | Hallucinated | Explanation score |
+|---|---|---|---|---|---|
+| diet_01 | Diet (LP) | ✅ | 0.6231 vs 0.6231 | No | 5.0 / 5 |
+| transport_01 | Transportation (LP) | ✅ | 620.0 vs 620.0 | No | 5.0 / 5 |
+| facility_01 | Facility location (MILP) | ✅ | 1300.0 vs 1300.0 | No | 4.67 / 5 |
+
+**3/3 solved exactly to independently-computed ground truth, 0 hallucinations,
+mean explanation quality 4.89/5 (LLM-as-judge)** — across all three problem
+domains, with zero validator retries needed.
+
+The RAG-on/RAG-off ablation table itself is **not yet populated**: the RAG-off
+condition hit the daily quota wall immediately after RAG-on finished (visible
+in the log as clean 429s). The harness is resumable and will fill in RAG-off
+— and the remaining 24 benchmark problems — automatically across subsequent
+daily runs, or in one pass once billing is enabled on the API key. No numbers
+are fabricated or extrapolated; this table will only grow with real runs.
 
 ## Tests
 

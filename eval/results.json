@@ -1,0 +1,365 @@
+[
+  {
+    "id": "diet_01",
+    "family": "diet",
+    "ambiguous": false,
+    "rag_enabled": true,
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 0.623076924,
+    "latency_s": 108.6,
+    "input_tokens": 3988,
+    "output_tokens": 861,
+    "clarifier_flagged_missing_info": false,
+    "missing_info": [],
+    "validation_retries": 0,
+    "retrieved_sources": [
+      "diet.md#5-worked-example-two-ingredient-feed-blend",
+      "diet.md#6-common-pitfalls-in-diet-blending-models",
+      "diet.md#2-objective-function",
+      "diet.md#4-percentage-requirements-in-blending",
+      "transportation.md#5-worked-example-two-plants-three-stores-f"
+    ],
+    "pipeline_status": "completed",
+    "spec": {
+      "problem_family": "diet",
+      "objective_sense": "minimize",
+      "objective_expression": "0.3*x_corn + 0.9*x_soy",
+      "variables": [
+        {
+          "name": "x_corn",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "x_soy",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "batch_size",
+          "expression": "x_corn + x_soy",
+          "sense": "==",
+          "rhs": 1.0
+        },
+        {
+          "name": "min_protein",
+          "expression": "0.09*x_corn + 0.48*x_soy",
+          "sense": ">=",
+          "rhs": 0.3
+        },
+        {
+          "name": "max_fiber",
+          "expression": "0.02*x_corn + 0.06*x_soy",
+          "sense": "<=",
+          "rhs": 0.05
+        }
+      ],
+      "raw_llm_notes": "Used reference pattern [diet.md#5-worked-example-two-ingredient-feed-blend].\nVariables are defined as kg of each ingredient per kg of blend, with non-negativity constraints.\nObjective function is to minimize total cost, which is the sum of (cost per kg) * (kg of ingredient).\nConstraints include:\n- Batch size: The total weight of the blend must be 1 kg.\n- Minimum protein: The total protein content must be at least 30% of the blend weight.\n- Maximum fiber: The total fiber content must be at most 5% of the blend weight.\nAll coefficients are derived directly from the problem statement and reference notes."
+    },
+    "agent_status": "Optimal",
+    "agent_objective": 0.623076924,
+    "explanation": "To minimize cost, we should use approximately 46% corn and 54% soy. This mix will cost about $0.62 per batch.\n\nThe two main limitations we're hitting are:\n\n*   **Batch Size:** We are making exactly one batch, as required.\n*   **Minimum Protein:** We are meeting the minimum protein requirement exactly. Any less protein would not meet the nutritional needs.\n\nThe maximum fiber constraint is not limiting us, meaning we could potentially use less fiber if needed, but it doesn't impact the current optimal solution.",
+    "feasibility_correct": true,
+    "solve_correct": true,
+    "judge_hallucination": {
+      "hallucinated": false,
+      "invented_items": [],
+      "rationale": "The generated spec accurately reflects the problem statement. The variables, objective function, and constraints (batch size, minimum protein, and maximum fiber) are all directly derived from the provided text. The non-negativity constraints are standard for this problem type."
+    },
+    "hallucinated": false,
+    "judge_explanation": {
+      "correctness": 5,
+      "clarity": 5,
+      "completeness": 5,
+      "rationale": "The explanation correctly states the objective value (0.62), the decision variables (46% corn, 54% soy), and identifies the binding constraints ('batch_size', 'min_protein'). The explanation is clear and easy to understand for a non-expert, and it discusses the implications of the binding constraints. The mention of the non-binding fiber constraint adds further clarity."
+    },
+    "explanation_score": 5.0,
+    "judge_tokens": 1863
+  },
+  {
+    "id": "transport_01",
+    "family": "transportation",
+    "ambiguous": false,
+    "rag_enabled": true,
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 620.0,
+    "latency_s": 52.38,
+    "input_tokens": 4221,
+    "output_tokens": 1164,
+    "clarifier_flagged_missing_info": false,
+    "missing_info": [],
+    "validation_retries": 0,
+    "retrieved_sources": [
+      "transportation.md#5-worked-example-two-plants-three-stores-f",
+      "transportation.md#2-objective-function",
+      "facility_location.md#5-worked-example-two-candidate-warehouses-",
+      "transportation.md#6-assignment-problems",
+      "transportation.md#0-transportation-and-assignment-problems-l"
+    ],
+    "pipeline_status": "completed",
+    "spec": {
+      "problem_family": "transportation",
+      "objective_sense": "minimize",
+      "objective_expression": "4*ship_A_1 + 6*ship_A_2 + 9*ship_A_3 + 5*ship_B_1 + 3*ship_B_2 + 2*ship_B_3",
+      "variables": [
+        {
+          "name": "ship_A_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_A_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_A_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_B_1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_B_2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "ship_B_3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "supply_A",
+          "expression": "ship_A_1 + ship_A_2 + ship_A_3",
+          "sense": "<=",
+          "rhs": 100.0
+        },
+        {
+          "name": "supply_B",
+          "expression": "ship_B_1 + ship_B_2 + ship_B_3",
+          "sense": "<=",
+          "rhs": 80.0
+        },
+        {
+          "name": "demand_1",
+          "expression": "ship_A_1 + ship_B_1",
+          "sense": ">=",
+          "rhs": 60.0
+        },
+        {
+          "name": "demand_2",
+          "expression": "ship_A_2 + ship_B_2",
+          "sense": ">=",
+          "rhs": 70.0
+        },
+        {
+          "name": "demand_3",
+          "expression": "ship_A_3 + ship_B_3",
+          "sense": ">=",
+          "rhs": 40.0
+        }
+      ],
+      "raw_llm_notes": "Used reference [transportation.md#5-worked-example-two-plants-three-stores-f] for variable definitions, objective function, and constraints. The problem is a direct application of the transportation problem formulation."
+    },
+    "agent_status": "Optimal",
+    "agent_objective": 620.0,
+    "explanation": "To minimize shipping costs, we should ship 60 units from A to location 1, 30 units from A to location 2, 40 units from B to location 2, and 40 units from B to location 3. This plan will result in a total cost of $620.\n\nThe binding constraints, which represent bottlenecks, are:\n*   **Supply B:** We are using all 80 units available from supply B.\n*   **Demand 1:** We are meeting the demand of 60 units at location 1 exactly.\n*   **Demand 2:** We are meeting the demand of 70 units at location 2 exactly.\n*   **Demand 3:** We are meeting the demand of 40 units at location 3 exactly.\n\nIf we could get more supply from B or if the demands at locations 1, 2, or 3 were lower, we might be able to reduce the total cost.",
+    "feasibility_correct": true,
+    "solve_correct": true,
+    "judge_hallucination": {
+      "hallucinated": false,
+      "invented_items": [],
+      "rationale": "The generated spec accurately reflects the problem statement. All variables, objective coefficients, and constraints (supply and demand) are directly derived from the provided text. The non-negativity constraints are standard for this problem type and not considered invented."
+    },
+    "hallucinated": false,
+    "judge_explanation": {
+      "correctness": 5,
+      "clarity": 5,
+      "completeness": 5,
+      "rationale": "The explanation correctly states the objective value ($620) and all variable values (e.g., 'ship 60 units from A to location 1'). It also correctly identifies all binding constraints ('supply_B', 'demand_1', 'demand_2', 'demand_3') and accurately describes their impact ('We are using all 80 units available from supply B.', 'We are meeting the demand of 60 units at location 1 exactly.'). The explanation is well-organized and easy to understand for a non-expert."
+    },
+    "explanation_score": 5.0,
+    "judge_tokens": 2301
+  },
+  {
+    "id": "facility_01",
+    "family": "facility_location",
+    "ambiguous": false,
+    "rag_enabled": true,
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 1300.0,
+    "latency_s": 33.81,
+    "input_tokens": 4394,
+    "output_tokens": 1443,
+    "clarifier_flagged_missing_info": false,
+    "missing_info": [],
+    "validation_retries": 0,
+    "retrieved_sources": [
+      "facility_location.md#5-worked-example-two-candidate-warehouses-",
+      "transportation.md#5-worked-example-two-plants-three-stores-f",
+      "transportation.md#6-assignment-problems",
+      "facility_location.md#0-fixed-charge-facility-location-milp",
+      "transportation.md#2-objective-function"
+    ],
+    "pipeline_status": "completed",
+    "spec": {
+      "problem_family": "facility_location",
+      "objective_sense": "minimize",
+      "objective_expression": "500*open_dallas + 400*open_reno + 2*serve_dallas_region1 + 3*serve_dallas_region2 + 8*serve_dallas_region3 + 6*serve_reno_region1 + 4*serve_reno_region2 + 3*serve_reno_region3",
+      "variables": [
+        {
+          "name": "open_dallas",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": 1.0
+        },
+        {
+          "name": "open_reno",
+          "var_type": "binary",
+          "lower_bound": 0.0,
+          "upper_bound": 1.0
+        },
+        {
+          "name": "serve_dallas_region1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_dallas_region2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_dallas_region3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_reno_region1",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_reno_region2",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        },
+        {
+          "name": "serve_reno_region3",
+          "var_type": "continuous",
+          "lower_bound": 0.0,
+          "upper_bound": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "demand_region1",
+          "expression": "serve_dallas_region1 + serve_reno_region1",
+          "sense": ">=",
+          "rhs": 50.0
+        },
+        {
+          "name": "demand_region2",
+          "expression": "serve_dallas_region2 + serve_reno_region2",
+          "sense": ">=",
+          "rhs": 60.0
+        },
+        {
+          "name": "demand_region3",
+          "expression": "serve_dallas_region3 + serve_reno_region3",
+          "sense": ">=",
+          "rhs": 40.0
+        },
+        {
+          "name": "capacity_dallas",
+          "expression": "serve_dallas_region1 + serve_dallas_region2 + serve_dallas_region3 - 120*open_dallas",
+          "sense": "<=",
+          "rhs": 0.0
+        },
+        {
+          "name": "capacity_reno",
+          "expression": "serve_reno_region1 + serve_reno_region2 + serve_reno_region3 - 100*open_reno",
+          "sense": "<=",
+          "rhs": 0.0
+        }
+      ],
+      "raw_llm_notes": "Used facility_location.md#5-worked-example-two-candidate-warehouses- for variable definitions and constraint structure. The objective function and constraints were adapted to the specific entities and values provided in the problem statement. Variable names were made more descriptive (e.g., serve_dallas_region1 instead of serve_d_1). The capacity constraints were formulated as `sum(shipments from facility) - capacity*open_facility <= 0`."
+    },
+    "agent_status": "Optimal",
+    "agent_objective": 1300.0,
+    "explanation": "To minimize costs, we should open both the Dallas and Reno facilities. The total cost will be approximately $1300.\n\nThe binding constraints, which represent bottlenecks, are:\n*   **Demand for Region 1:** We are exactly meeting the demand for Region 1, meaning any shortfall here would go unserved.\n*   **Demand for Region 2:** We are exactly meeting the demand for Region 2, meaning any shortfall here would go unserved.\n*   **Demand for Region 3:** We are exactly meeting the demand for Region 3, meaning any shortfall here would go unserved.\n\nSpecifically, we will serve 50 units of demand for Region 1 from Dallas, 60 units of demand for Region 2 from Dallas, and 40 units of demand for Region 3 from Reno. The Dallas facility will operate at its capacity of 110 units (50+60), and Reno will operate at its capacity of 40 units.",
+    "feasibility_correct": true,
+    "solve_correct": true,
+    "judge_hallucination": {
+      "hallucinated": false,
+      "invented_items": [],
+      "rationale": "The generated spec accurately reflects the problem statement. All variables, objective coefficients, and constraints are directly derived from the provided text. The capacity constraints are standard for facility location problems and correctly link shipment variables to the binary open/close variables using the stated capacities."
+    },
+    "hallucinated": false,
+    "judge_explanation": {
+      "correctness": 4,
+      "clarity": 5,
+      "completeness": 5,
+      "rationale": "Correctness is 4 because the explanation incorrectly states that Dallas operates at its capacity of 110 units and Reno at its capacity of 40 units. The solve result does not mention facility capacities. Clarity is 5 because the explanation is well-organized, jargon-free, and easy for a non-expert to understand. Completeness is 5 because it correctly identifies the optimal decision (open both facilities), the objective value ($1300), and discusses all binding constraints (demand for all three regions) and the specific serving amounts."
+    },
+    "explanation_score": 4.67,
+    "judge_tokens": 2569
+  },
+  {
+    "id": "diet_01",
+    "family": "diet",
+    "ambiguous": false,
+    "rag_enabled": false,
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 0.623076924,
+    "pipeline_status": "crashed",
+    "error": "ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite\\nPlease retry in 58.909413862s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash-lite'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '58s'}]}}",
+    "traceback": "Traceback (most recent call last):\n  File \"/home/user/OptiRAG/eval/run_eval.py\", line 38, in evaluate_problem\n    state = run_pipeline(problem[\"prompt\"], rag_enabled=rag_enabled,\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/OptiRAG/src/graph.py\", line 189, in run_pipeline\n    return _compiled.invoke(initial)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/dist-packages/langgraph/pregel/main.py\", line 3928, in invoke\n    for chunk in self.stream(\n  File \"/usr/local/lib/python3.11/dist-packages/langgraph/pregel/main.py\", line 2982, in stream\n    for _ in runner.tick(\n  File \"/usr/local/lib/python3.11/dist-packages/langgraph/pregel/_runner.py\", line 207, in tick\n    run_with_retry(\ngoogle.genai.errors.ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite\\nPlease retry in 58.909413862s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash-lite'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '58s'}]}}\nDuring task with name 'explain' and id '11a8df00-a82d-79d5-0d1d-5b66a3a4cbc9'\n",
+    "latency_s": 239.32
+  },
+  {
+    "id": "transport_01",
+    "family": "transportation",
+    "ambiguous": false,
+    "rag_enabled": false,
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 620.0,
+    "pipeline_status": "crashed",
+    "error": "ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite\\nPlease retry in 205.76349ms.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash-lite'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '0s'}]}}",
+    "traceback": "Traceback (most recent call last):\n  File \"/home/user/OptiRAG/eval/run_eval.py\", line 38, in evaluate_problem\n    state = run_pipeline(problem[\"prompt\"], rag_enabled=rag_enabled,\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/OptiRAG/src/graph.py\", line 189, in run_pipeline\n    return _compiled.invoke(initial)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/dist-packages/langgraph/pregel/main.py\", line 3928, in invoke\n    for chunk in self.stream(\n  File \"/usr/local/lib/python3.11/dist-packages/langgraph/pregel/main.py\", line 2982, in stream\n    for _ in runner.tick(\n  File \"/usr/local/lib/python3.11/dist-packages/langgraph/pregel/_runner.py\", line 207, in tick\n    run_with_retry(\ngoogle.genai.errors.ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite\\nPlease retry in 205.76349ms.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash-lite'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '0s'}]}}\nDuring task with name 'intake' and id '05b0ccb1-c400-4a02-de68-2258d54c08c2'\n",
+    "latency_s": 238.7
+  },
+  {
+    "id": "facility_01",
+    "family": "facility_location",
+    "ambiguous": false,
+    "rag_enabled": false,
+    "ground_truth_status": "Optimal",
+    "ground_truth_objective": 1300.0,
+    "pipeline_status": "crashed",
+    "error": "ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite\\nPlease retry in 59.513989844s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash-lite'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '59s'}]}}",
+    "traceback": "Traceback (most recent call last):\n  File \"/home/user/OptiRAG/eval/run_eval.py\", line 38, in evaluate_problem\n    state = run_pipeline(problem[\"prompt\"], rag_enabled=rag_enabled,\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/user/OptiRAG/src/graph.py\", line 189, in run_pipeline\n    return _compiled.invoke(initial)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/dist-packages/langgraph/pregel/main.py\", line 3928, in invoke\n    for chunk in self.stream(\n  File \"/usr/local/lib/python3.11/dist-packages/langgraph/pregel/main.py\", line 2982, in stream\n    for _ in runner.tick(\n  File \"/usr/local/lib/python3.11/dist-packages/langgraph/pregel/_runner.py\", line 207, in tick\n    run_with_retry(\ngoogle.genai.errors.ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite\\nPlease retry in 59.513989844s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-flash-lite'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '59s'}]}}\nDuring task with name 'intake' and id '739d309b-78dd-eed9-9900-071ada109576'\n",
+    "latency_s": 240.78
+  }
+]
