@@ -62,7 +62,7 @@ def _is_transient(exc: Exception) -> bool:
     text = str(exc).upper()
     return any(marker in text for marker in (
         "RESOURCE_EXHAUSTED", "429", "UNAVAILABLE", "503", "500",
-        "INTERNAL", "OVERLOADED", "RATE LIMIT",
+        "INTERNAL", "OVERLOADED", "RATE LIMIT", "TIMEOUT", "TIMED OUT", "CONNECT",
     )) or ("QUOTA" in text and "EXCEED" in text)
 
 
