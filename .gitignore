@@ -14,3 +14,4 @@ venv/
 eval/run.log
 eval/results.json
 eval/report.md
+eval/mini_benchmark.json
