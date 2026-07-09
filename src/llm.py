@@ -1,4 +1,4 @@
-"""Thin LLM client wrapper over NVIDIA NIM's OpenAI-compatible endpoint:
+"""Thin LLM client wrapper over Google Gemini's OpenAI-compatible endpoint:
 JSON-schema structured output + usage tracking + rate limiting.
 
 Structured output is obtained by embedding the target model's JSON Schema in
@@ -78,10 +78,15 @@ def get_client() -> OpenAI:
     if _client is None:
         if not config.LLM_API_KEY:
             raise RuntimeError(
-                "NVIDIA_API_KEY is not set. Copy .env.example to .env and fill "
-                "in your NVIDIA NIM API key (get one at https://build.nvidia.com)."
+                "GEMINI_API_KEY is not set. Copy .env.example to .env and fill "
+                "in your Google Gemini API key (get one free at "
+                "https://aistudio.google.com/apikey)."
             )
-        _client = OpenAI(base_url=config.LLM_BASE_URL, api_key=config.LLM_API_KEY)
+        _client = OpenAI(
+            base_url=config.LLM_BASE_URL,
+            api_key=config.LLM_API_KEY,
+            timeout=config.REQUEST_TIMEOUT_S,
+        )
     return _client
 
 
@@ -114,6 +119,11 @@ def _chat(model: str, system: str, user: str, json_mode: bool):
     )
     if json_mode:
         kwargs["response_format"] = {"type": "json_object"}
+    # Turn off Gemini's default "thinking" so hidden reasoning does not eat the
+    # token budget and leave the visible answer empty. Ignored by endpoints
+    # that don't support it (we drop the param on a 400 that names it).
+    if config.REASONING_EFFORT:
+        kwargs["reasoning_effort"] = config.REASONING_EFFORT
 
     last_exc: Exception | None = None
     for attempt in range(config.LLM_MAX_RETRIES):
@@ -126,6 +136,11 @@ def _chat(model: str, system: str, user: str, json_mode: bool):
             if json_mode and "response_format" in kwargs and _rejects_json_mode(exc):
                 logger.info("Model %s rejects JSON mode; retrying without it.", model)
                 kwargs.pop("response_format")
+                continue
+            # Some endpoints reject reasoning_effort; drop it and retry.
+            if "reasoning_effort" in kwargs and _rejects_reasoning_effort(exc):
+                logger.info("Model %s rejects reasoning_effort; retrying without it.", model)
+                kwargs.pop("reasoning_effort")
                 continue
             if not _is_transient(exc) or attempt == config.LLM_MAX_RETRIES - 1:
                 raise
@@ -146,6 +161,11 @@ def _rejects_json_mode(exc: Exception) -> bool:
     return "response_format" in text or "json_object" in text or (
         "400" in text and "json" in text
     )
+
+
+def _rejects_reasoning_effort(exc: Exception) -> bool:
+    text = str(exc).lower()
+    return "reasoning_effort" in text or "reasoning" in text or "thinking" in text
 
 
 def _extract_json(text: str) -> str:

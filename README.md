@@ -6,7 +6,7 @@ and a quantitative evaluation harness.
 Describe a planning problem in plain English ("blend corn and soy into the
 cheapest feed with 30% protein…"); OptiAgent classifies it, retrieves
 formulation knowledge (hybrid dense + BM25 with reranking), emits a validated
-structured optimization spec via an LLM (NVIDIA NIM, OpenAI-compatible),
+structured optimization spec via an LLM (Google Gemini, OpenAI-compatible),
 solves it with PuLP/CBC,
 and explains the solution — including which constraints are binding.
 
@@ -154,17 +154,19 @@ optima: diet ≈ `$0.6231/kg`, transportation `$620`, facility location `$1300`.
 
 ## Design notes
 
-- **LLM provider:** NVIDIA NIM (`build.nvidia.com`) via its OpenAI-compatible
-  endpoint and the `openai` SDK — pipeline on `meta/llama-3.1-8b-instruct`,
-  judge on `meta/llama-3.1-70b-instruct` (the build spec in `CLAUDE.md`
-  originally pinned Anthropic/Claude; the provider was changed deliberately at
-  the user's request, first to Google Gemini and then to NVIDIA NIM for its
-  more generous free tier). The provider lives entirely behind `src/llm.py` —
-  every agent talks to `structured_call` / `text_call`, so pointing at any
-  other OpenAI-compatible endpoint is just a `LLM_BASE_URL` + key change.
-  Structured output embeds the Pydantic JSON Schema in the prompt, requests
-  JSON mode, and defensively extracts + validates the returned JSON.
-  `LLM_MODEL` / `JUDGE_MODEL` are config values.
+- **LLM provider:** Google Gemini via its OpenAI-compatible endpoint
+  (`generativelanguage.googleapis.com/v1beta/openai/`) and the `openai` SDK —
+  pipeline and judge both on `gemini-2.5-flash` by default (the build spec in
+  `CLAUDE.md` originally pinned Anthropic/Claude; the provider was changed
+  deliberately at the user's request — briefly to NVIDIA NIM, then back to
+  Gemini, which is the reachable endpoint here). The provider lives entirely
+  behind `src/llm.py` — every agent talks to `structured_call` / `text_call`,
+  so pointing at any other OpenAI-compatible endpoint is just a `LLM_BASE_URL`
+  + key change. Structured output embeds the Pydantic JSON Schema in the
+  prompt, requests JSON mode, and defensively extracts + validates the
+  returned JSON. Gemini 2.5's "thinking" is disabled (`reasoning_effort=none`)
+  so hidden reasoning doesn't consume the token budget and leave the answer
+  empty. `LLM_MODEL` / `JUDGE_MODEL` are config values.
 - **Safe expression handling:** LLM-emitted expressions are parsed with an
   AST whitelist (numbers, declared variable names, `+ - * /`, parentheses) —
   never `eval`. Nonlinear or unknown-name expressions are rejected and the
